@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Bibliothèque - webapp</title>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<script>
+var app = angular.module('myApp', []);
+app.controller('mediasCtrl', function($scope, $http) {
+	$scope.media = {};
+	
+	$scope.edition = false;
+	
+    $http.get("http://localhost:8080/webapp/rest/mediasrs")
+    .then(function (response) {$scope.medias = response.data;});
+
+
+	$scope.ajouter = function(){
+		console.log("ajouter un nouveau media" + $scope.media.titre);
+		console.log("ajouter la date :" + $scope.media.datePublication.getTime() );
+		
+		
+		 $http.post("http://localhost:8080/webapp/rest/mediasrs", $scope.media)
+		    .then(function (response) {
+			    		$scope.medias = response.data;
+			    });
+		
+	};
+	
+	
+	$scope.modifier = function(){
+		console.log("modifier un nouveau media" + $scope.media.titre);
+		
+		 $http.put("http://localhost:8080/webapp/rest/mediasrs", $scope.media)
+		    .then(function (response) {
+			    		$scope.medias = response.data;
+			    		$scope.edition = false;
+			    		$scope.media = {};
+			    });
+		
+	};
+	
+	
+	$scope.supprimer = function(id){
+		console.log("supprimer id : "+ id);
+	}
+	
+	
+
+	$scope.consulter = function(media){
+		console.log("consulter media ayant id : "+ media.identifiant);
+		media.datePublication = new Date(media.datePublication);
+		$scope.media = media;
+		$scope.edition = true;
+	}
+
+    
+});
+</script>
+</head>
+<body>
+	<div class="container" ng-app="myApp" ng-controller="mediasCtrl">
+	   <div class="jumbotron">
+	   
+		<h2 ng-if="edition == false">Nouveau média</h2>
+		<h2 ng-if="edition == true">Edition média</h2>
+		<form>
+			<div class="form-group">
+				<label for="pwd">Titre:</label> <input type="titre"
+					class="form-control" id="titre" ng-model="media.titre">
+			</div>
+			<div class="form-group">
+				<label for="pwd">Date:</label> <input type="date"
+					class="form-control" id="date" ng-model="media.datePublication">
+			</div>
+			<div class="form-group">
+				<button type="reset" clas="btn-warning">Annuler</button>
+				<button ng-if="edition == false" class="btn-success" ng-click="ajouter();">Ajouter</button>
+				<button ng-if="edition == true" class="btn-success" ng-click="modifier();">Modifier</button>
+			</div>
+		</form>
+		</div>
+		<div class="row ">
+			<h1>Bibliothèque - Liste des medias</h1>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<td>Identifiant</td>
+						<td>Titre</td>
+						<td>Actions</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="media in medias">
+						<td>{{ media.identifiant }}</td>
+						<td>{{ media.titre }}</td>
+						<td>
+							<button class="btn btn-danger" ng-click="supprimer(media.identifiant);">Supprimer</button>
+							<button class="btn btn-success" ng-click="consulter(media);">Consulter</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+</body>
+</html>

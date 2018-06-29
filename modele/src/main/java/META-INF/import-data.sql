@@ -1,0 +1,1 @@
+INSERT INTO `t_media` VALUES (1,'2018-06-29 09:00:59','Arts'),(2,'2018-06-29 09:00:59','Sciences'),(3,'2018-06-29 09:00:59','Informatique');

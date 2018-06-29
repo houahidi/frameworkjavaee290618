@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+
+	<!--  injection par setter -->
+	<bean class="fr.orsys.bibliotheque.modele.Media" id="media1" >
+		<property name="identifiant" value="1"/>
+		<property name="titre" value="Spring pour les experts"/>	
+	</bean>
+	
+	<!-- injection par constructeur -->
+	<bean class="fr.orsys.bibliotheque.modele.Media" id="media2">
+		<constructor-arg value="2"/>
+		<constructor-arg value="UML"/>
+		<property name="datePublication">
+			<bean factory-bean="dateFormat" factory-method="parse">
+				<constructor-arg value="26/06/2018"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="dateFormat" class="java.text.SimpleDateFormat">
+		<constructor-arg value="dd/MM/yyyy"/>
+	</bean>
+	
+	<!-- declaration des exemplaires -->
+	<bean id="e1" class="fr.orsys.bibliotheque.modele.Exemplaire">
+		<constructor-arg value="ref1"/>
+		<constructor-arg  value="Disponible"/>
+	</bean>
+	
+	<bean id="e2" class="fr.orsys.bibliotheque.modele.Exemplaire">
+		<constructor-arg index="0" value="ref2"/>
+		<constructor-arg index="1" value="Reserve"/>
+	</bean>	
+	<!--  media avec une liste d'exemplaires -->
+	<bean class="fr.orsys.bibliotheque.modele.Media" id="media3" >
+		<property name="identifiant" value="3"/>
+		<property name="titre" value="Maven"/>
+		<property name="exemplaires">
+			<list>
+				<ref bean="e1"/>
+				<ref bean="e2"/>				
+			</list>		
+		</property>	
+	</bean>
+	
+	<!-- Partie dao -->
+	<bean class="fr.orsys.bibliotheque.modele.Media" id="media4" >
+		<property name="identifiant" value="0"/>
+		<property name="titre" value="Spring pour les experts"/>	
+	</bean>	
+	
+	<bean class="fr.orsys.bibliotheque.modele.Categorie" id="categorie1" >
+		<property name="idCategorie" value="0"/>
+		<property name="labelle" value="Spring pour les experts"/>	
+	</bean>	
+	
+	
+    <bean id="factory" class="javax.persistence.Persistence" 
+    					factory-method="createEntityManagerFactory" 
+    					destroy-method="close"
+    					scope="singleton">
+    	<constructor-arg value="bibliotheque-model-pu"/>
+    </bean>
+    <bean id="entityManager" factory-bean="factory" factory-method="createEntityManager"
+    		 destroy-method="close" 
+    		 scope="prototype"
+    		 />
+    <bean id="mediaDao"  class="fr.orsys.bibliotheque.dao.jpa.EntiteDaoJPAImpl" scope="prototype">
+    	<constructor-arg ref="entityManager"/>
+    </bean>
+
+
+	<!-- Ajout de l'AOP  -->
+	<!-- declaration de bean jouant le role d'aspect -->
+	<bean id="aspectBean1" class="fr.orsys.bibliotheque.aspects.SampleAspect"/>
+	
+	<!-- Avant -->
+	<!-- 
+	<aop:config>
+		<aop:aspect id="aspect1" ref="aspectBean1">
+			<aop:before method="log" pointcut="execution(* fr.orsys.bibliotheque.dao.*.*(..) )"/>			
+		</aop:aspect>	
+	</aop:config>
+	 -->
+	 
+	<!-- Autour -->
+	<aop:config>
+		<aop:aspect id="aspect1" ref="aspectBean1">
+			<aop:around method="log2" 
+						pointcut="execution(* fr.orsys.bibliotheque.dao.*.*(..) )
+					
+						"/>			
+		</aop:aspect>	
+	</aop:config>
+
+	
+
+
+
+
+
+
+
+
+
+</beans>
+
+
+
+
+
+
+
+
